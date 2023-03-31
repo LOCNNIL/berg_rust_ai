@@ -1,6 +1,6 @@
 // Platform with Open-Source ML models avaible: Hugging Face (https://huggingface.co/)
 
-use rust_bert::{resources::RemoteResource, gpt_neo::{GptNeoModelResources, GptNeoConfigResources, GptNeoVocabResources, GptNeoMergesResources}, pipelines::text_generation::{TextGenerationConfig, TextGenerationModel}};
+use rust_bert::{resources::RemoteResource, gpt_neo::{GptNeoModelResources, GptNeoConfigResources, GptNeoVocabResources, GptNeoMergesResources}, pipelines::{text_generation::{TextGenerationConfig, TextGenerationModel}, common::ModelType}};
 
 /// The Model used to generate tests contains 4 files:
 /// 1 - .ot file
@@ -9,7 +9,8 @@ use rust_bert::{resources::RemoteResource, gpt_neo::{GptNeoModelResources, GptNe
 /// 4 - merges
 
 fn main() {
-
+    println!("Started...");
+    #[allow(unused_doc_comments)]
     /// Rust Bert has some built-in values for the model that we are going to use with is: GPT-Neo
     let model_resource = Box::new(RemoteResource::from_pretrained(
         GptNeoModelResources::GPT_NEO_2_7B, 
@@ -29,10 +30,10 @@ fn main() {
         model_resource,
         config_resource,
         vocab_resource,
-        merges_resource,
+        merges_resource: Some(merges_resource),
         num_beams: 5,
         no_repeat_ngram_size: 2,
-        max_length: 100,
+        max_length: Some(100),
         ..Default::default()
     };
 
@@ -42,7 +43,7 @@ fn main() {
         let mut line = String::new();
         std::io::stdin().read_line(&mut line).expect("[ERROR] Couldn't read user input!");
         let slipt = line.split('/').collect::<Vec<&str>>();
-        let slc = split.as_slice();
+        let slc = slipt.as_slice();
         let output = model.generate(&slc[1..], Some(slc[0]));
         for sentence in output {
             println!("{}", sentence);
